@@ -4,6 +4,7 @@ import { ArrowUpRight, ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { mainFormats, formatHref } from "@/content/integrations";
 import { ShowcaseDepth } from "@/components/showcase-depth";
+import { SoffitBackdrop } from "@/components/soffit-backdrop";
 
 const phrases = [
   "рекламу в папке для счёта",
@@ -72,7 +73,7 @@ export function HomeExperience() {
     remember(selected);
   }
   return (
-    <main id="main">
+    <main id="main" className="home-page">
       <section
         className="showcase section-wrap"
         aria-label="Выбор интеграции"
@@ -82,6 +83,7 @@ export function HomeExperience() {
           if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false);
         }}
       >
+        <SoffitBackdrop playing={playing && !focused && !chooserOpen} />
         <div className="showcase-meta">
           <span>Ваш бренд в «Кофемании»</span>
           <span>Рекламные и партнёрские интеграции</span>
@@ -174,7 +176,11 @@ export function HomeExperience() {
             </span>
             <button
               className="showcase-play"
-              aria-label={playing ? "Приостановить смену форматов" : "Включить смену форматов"}
+              aria-label={
+                playing
+                  ? "Приостановить анимацию и смену форматов"
+                  : "Включить анимацию и смену форматов"
+              }
               onClick={() => setPlaying(!playing)}
             >
               {playing ? <Pause size={16} /> : <Play size={16} />}
