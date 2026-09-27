@@ -48,9 +48,9 @@ void main() {
   vec2 warp = vec2(field(p * 2.3 + vec2(t, -t * 0.4)),
                    field(p * 2.3 + vec2(4.7, 1.3) - t * 0.35));
   float folded = field(p * 3.0 + warp * 2.6 + drift + vec2(-t * 0.35, t * 0.2));
-  // Keep every colored reflection inside the empty side gutters.
-  float side = min(uv.x, 1.0 - uv.x) / max(u_edge_width, 0.001);
-  float edge = 1.0 - smoothstep(0.10, 1.0, side);
+  // Move both side reflections inward by 7% of the viewport width.
+  float side = (min(uv.x, 1.0 - uv.x) - 0.07) / max(u_edge_width, 0.001);
+  float edge = (1.0 - smoothstep(0.10, 1.0, side)) * smoothstep(-1.0, 0.0, side);
   float ribbon = exp(-abs(side - 0.28 + (folded - 0.48) * 0.75) * 4.0);
   float shade = smoothstep(0.30, 0.75, folded);
   vec3 paper = vec3(0.992, 0.989, 0.982);
@@ -149,7 +149,7 @@ export function createSoffitRenderer(canvas: HTMLCanvasElement, host: HTMLElemen
   }
   function resize() {
     const bounds = canvas.getBoundingClientRect();
-    // These gutters stop before the header, main content and footer text.
+    // Preserve the reflection width independently of its inward offset.
     const gutter =
       bounds.width <= 760
         ? 14
