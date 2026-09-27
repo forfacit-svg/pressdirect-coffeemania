@@ -2082,55 +2082,12 @@ h2 {
 .showcase {
   padding-top: 30px;
 }
-/* One continuous, white-dominant background behind the entire home page. */
+/* A plain light canvas keeps the photographs and text in focus. */
 body:has(.home-page) {
-  isolation: isolate;
+  background: #fdfcfb;
 }
 body:has(.home-page) .site-footer {
   background: transparent;
-}
-.soffit-backdrop {
-  --soffit-edge: max(48px, calc((100vw - 1688px) / 2 - 8px));
-  --soffit-left: var(--soffit-edge);
-  --soffit-right: var(--soffit-edge);
-  position: fixed;
-  z-index: -1;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  background:
-    linear-gradient(
-      90deg,
-      #b822361c,
-      transparent var(--soffit-left),
-      transparent calc(100% - var(--soffit-right)),
-      #b822361c
-    ),
-    #fdfcfb;
-}
-@media (max-width: 1000px) {
-  .soffit-backdrop {
-    --soffit-edge: 20px;
-  }
-}
-@media (max-width: 760px) {
-  .soffit-backdrop {
-    --soffit-edge: 14px;
-  }
-}
-.soffit-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-}
-.soffit-canvas[data-ready="true"] {
-  opacity: 1;
-}
-@media print {
-  .soffit-backdrop {
-    display: none;
-  }
 }
 .showcase-meta {
   display: flex;

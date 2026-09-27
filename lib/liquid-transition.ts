@@ -66,7 +66,10 @@ export function createLiquidTransition(
   let visible = true;
   let disposed = false;
   let loading = false;
+  let loadVersion = 0;
+  let pendingLoad: AbortController | null = null;
   let frame = 0;
+  let deadline = 0;
   let gl: WebGLRenderingContext | null = null;
   let attempted = false;
   let program: WebGLProgram | null = null;
@@ -166,6 +169,8 @@ export function createLiquidTransition(
   }
   function stop() {
     if (frame) window.cancelAnimationFrame(frame);
+    window.clearTimeout(deadline);
+    deadline = 0;
     frame = 0;
   }
   function paint() {
@@ -186,7 +191,13 @@ export function createLiquidTransition(
     );
     canvas.width = Math.max(1, Math.round(bounds.width * scale));
     canvas.height = Math.max(1, Math.round(bounds.height * scale));
-    paint();
+    try {
+      paint();
+    } catch {
+      release();
+      delete stage.dataset.enhanced;
+      finish();
+    }
   }
   function finish() {
     stop();
@@ -201,26 +212,63 @@ export function createLiquidTransition(
     if (!active.started) active.started = now;
     const fraction = Math.min(1, (now - active.started) / active.duration);
     active.progress = fraction * fraction * (3 - 2 * fraction);
-    paint();
+    try {
+      paint();
+    } catch {
+      release();
+      delete stage.dataset.enhanced;
+      finish();
+      return;
+    }
     if (fraction === 1) finish();
     else frame = window.requestAnimationFrame(tick);
   }
-  async function ready(image: HTMLImageElement) {
-    if (image.complete && image.naturalWidth) return true;
-    try {
-      await image.decode();
-      return image.naturalWidth > 0;
-    } catch {
-      return false;
-    }
+  function ready(image: HTMLImageElement, signal: AbortSignal): Promise<boolean> {
+    if (signal.aborted) return Promise.resolve(false);
+    if (image.complete) return Promise.resolve(image.naturalWidth > 0);
+    return new Promise((resolve) => {
+      let settled = false;
+      const settle = (success: boolean) => {
+        if (settled) return;
+        settled = true;
+        window.clearTimeout(timeout);
+        image.removeEventListener("load", loaded);
+        image.removeEventListener("error", failed);
+        signal.removeEventListener("abort", cancelled);
+        resolve(success);
+      };
+      const loaded = () => settle(image.naturalWidth > 0);
+      const failed = () => settle(false);
+      const cancelled = () => settle(false);
+      const timeout = window.setTimeout(
+        () => settle(image.complete && image.naturalWidth > 0),
+        2500,
+      );
+      image.addEventListener("load", loaded);
+      image.addEventListener("error", failed);
+      signal.addEventListener("abort", cancelled, { once: true });
+      try {
+        image.decode().then(loaded, () => {
+          if (image.complete) settle(image.naturalWidth > 0);
+        });
+      } catch {
+        // Load/error events and the deadline also cover browsers without decode().
+      }
+    });
   }
   async function update() {
     if (disposed || loading || active || requested === current) return;
     const next = requested;
+    const version = ++loadVersion;
+    pendingLoad = new AbortController();
     loading = true;
-    const [fromReady, toReady] = await Promise.all([ready(images[current]), ready(images[next])]);
+    const [fromReady, toReady] = await Promise.all([
+      ready(images[current], pendingLoad.signal),
+      ready(images[next], pendingLoad.signal),
+    ]);
+    if (disposed || version !== loadVersion) return;
     loading = false;
-    if (disposed) return;
+    pendingLoad = null;
     if (next !== requested) return void update();
     // Retain the last successful image if a requested asset cannot load.
     if (!toReady) return;
@@ -245,6 +293,8 @@ export function createLiquidTransition(
       paint();
       canvas.dataset.active = "true";
       frame = window.requestAnimationFrame(tick);
+      // Even a suspended or failed animation frame cannot lock all subsequent slides.
+      deadline = window.setTimeout(finish, active.duration + 400);
     } catch {
       stop();
       active = null;
@@ -263,6 +313,9 @@ export function createLiquidTransition(
     delete stage.dataset.enhanced;
     finish();
   }
+  function retryLoadedImage() {
+    if (!loading) void update();
+  }
   const observer =
     "IntersectionObserver" in window
       ? new IntersectionObserver(([entry]) => {
@@ -278,15 +331,25 @@ export function createLiquidTransition(
   compact.addEventListener("change", resize);
   document.addEventListener("visibilitychange", sync);
   canvas.addEventListener("webglcontextlost", contextLost);
+  for (const image of images) image.addEventListener("load", retryLoadedImage);
 
   return {
     goTo(index: number) {
       if (!Number.isInteger(index) || index < 0 || index >= images.length || disposed) return;
+      if (index !== requested && pendingLoad) {
+        loadVersion++;
+        pendingLoad.abort();
+        pendingLoad = null;
+        loading = false;
+      }
       requested = index;
       void update();
     },
     dispose() {
       disposed = true;
+      loadVersion++;
+      pendingLoad?.abort();
+      pendingLoad = null;
       stop();
       active = null;
       observer?.disconnect();
@@ -296,6 +359,7 @@ export function createLiquidTransition(
       compact.removeEventListener("change", resize);
       document.removeEventListener("visibilitychange", sync);
       canvas.removeEventListener("webglcontextlost", contextLost);
+      for (const image of images) image.removeEventListener("load", retryLoadedImage);
       delete canvas.dataset.active;
       delete stage.dataset.enhanced;
       release();
