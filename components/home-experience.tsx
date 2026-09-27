@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { mainFormats, formatHref } from "@/content/integrations";
-import { ShowcaseDepth } from "@/components/showcase-depth";
+import { ShowcaseLiquid } from "@/components/showcase-liquid";
 import { SoffitBackdrop } from "@/components/soffit-backdrop";
 
 const phrases = [
@@ -145,7 +145,7 @@ export function HomeExperience() {
               touchStart.current = null;
             }}
           >
-            <ShowcaseDepth index={index} playing={playing && !focused && !chooserOpen} />
+            <ShowcaseLiquid index={index} />
           </div>
         </div>
         <div className="showcase-switch" data-reveal="row">
