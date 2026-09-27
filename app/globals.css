@@ -2084,6 +2084,11 @@ h2 {
   isolation: isolate;
   padding-top: 30px;
 }
+/* The light field ends with the hero, before the following editorial text. */
+.showcase-stage {
+  position: relative;
+  isolation: isolate;
+}
 /* A full-bleed light field behind the existing editorial hero. */
 .home-page {
   overflow-x: clip;

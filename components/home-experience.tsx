@@ -83,115 +83,117 @@ export function HomeExperience() {
           if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false);
         }}
       >
-        <SoffitBackdrop playing={playing && !focused && !chooserOpen} />
-        <div className="showcase-meta">
-          <span>Ваш бренд в «Кофемании»</span>
-          <span>Рекламные и партнёрские интеграции</span>
-        </div>
-        <div className="showcase-hero">
-          <div
-            className="showcase-copy"
-            data-reveal
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-          >
-            <h1>Мы делаем</h1>
+        <div className="showcase-stage">
+          <SoffitBackdrop playing={playing && !focused && !chooserOpen} />
+          <div className="showcase-meta">
+            <span>Ваш бренд в «Кофемании»</span>
+            <span>Рекламные и партнёрские интеграции</span>
+          </div>
+          <div className="showcase-hero">
             <div
-              className="showcase-current"
-              aria-live={playing ? "off" : "polite"}
-              aria-atomic="true"
+              className="showcase-copy"
+              data-reveal
+              onMouseEnter={() => setHovered(true)}
+              onMouseLeave={() => setHovered(false)}
             >
+              <h1>Мы делаем</h1>
+              <div
+                className="showcase-current"
+                aria-live={playing ? "off" : "polite"}
+                aria-atomic="true"
+              >
+                <a
+                  className="showcase-phrase"
+                  href={formatHref(format.slug)}
+                  key={format.slug}
+                  aria-label={"Подробнее: " + format.title}
+                  onClick={() => remember(index)}
+                >
+                  {phrases[index]}
+                </a>
+                <p>{descriptions[index]}</p>
+              </div>
               <a
-                className="showcase-phrase"
+                className="showcase-open"
                 href={formatHref(format.slug)}
-                key={format.slug}
-                aria-label={"Подробнее: " + format.title}
                 onClick={() => remember(index)}
               >
-                {phrases[index]}
+                Узнать о формате <ArrowUpRight size={21} />
               </a>
-              <p>{descriptions[index]}</p>
             </div>
-            <a
-              className="showcase-open"
-              href={formatHref(format.slug)}
-              onClick={() => remember(index)}
+            <div
+              className="showcase-photo"
+              data-reveal
+              data-parallax="16"
+              onMouseEnter={() => setHovered(true)}
+              onMouseLeave={() => setHovered(false)}
+              onTouchStart={(event) => {
+                touchStart.current = {
+                  x: event.touches[0].clientX,
+                  y: event.touches[0].clientY,
+                };
+              }}
+              onTouchEnd={(event) => {
+                if (touchStart.current) {
+                  const dx = touchStart.current.x - event.changedTouches[0].clientX;
+                  const dy = touchStart.current.y - event.changedTouches[0].clientY;
+                  if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy))
+                    choose(index + (dx > 0 ? 1 : -1));
+                }
+                touchStart.current = null;
+              }}
+              onTouchCancel={() => {
+                touchStart.current = null;
+              }}
             >
-              Узнать о формате <ArrowUpRight size={21} />
-            </a>
+              <ShowcaseDepth index={index} playing={playing && !focused && !chooserOpen} />
+            </div>
           </div>
-          <div
-            className="showcase-photo"
-            data-reveal
-            data-parallax="16"
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            onTouchStart={(event) => {
-              touchStart.current = {
-                x: event.touches[0].clientX,
-                y: event.touches[0].clientY,
-              };
-            }}
-            onTouchEnd={(event) => {
-              if (touchStart.current) {
-                const dx = touchStart.current.x - event.changedTouches[0].clientX;
-                const dy = touchStart.current.y - event.changedTouches[0].clientY;
-                if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy))
-                  choose(index + (dx > 0 ? 1 : -1));
-              }
-              touchStart.current = null;
-            }}
-            onTouchCancel={() => {
-              touchStart.current = null;
-            }}
-          >
-            <ShowcaseDepth index={index} playing={playing && !focused && !chooserOpen} />
-          </div>
-        </div>
-        <div className="showcase-switch" data-reveal="row">
-          <Select
-            value={String(index)}
-            onValueChange={(value) => choose(Number(value))}
-            open={chooserOpen}
-            onOpenChange={setChooserOpen}
-          >
-            <SelectTrigger
-              className="showcase-chooser"
-              aria-label={"Все 6 форматов. Выбрано: " + format.short}
+          <div className="showcase-switch" data-reveal="row">
+            <Select
+              value={String(index)}
+              onValueChange={(value) => choose(Number(value))}
+              open={chooserOpen}
+              onOpenChange={setChooserOpen}
             >
-              <span>Все 6 форматов</span>
-            </SelectTrigger>
-            <SelectContent className="showcase-options" position="popper" align="start">
-              {mainFormats.map((item, i) => (
-                <SelectItem key={item.slug} value={String(i)}>
-                  <span className="showcase-option-number">{item.number}</span>
-                  <span>{item.short}</span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <div className="showcase-controls">
-            <span className="showcase-count" aria-label={"Формат " + (index + 1) + " из 6"}>
-              {format.number} / 06
-            </span>
-            <button
-              className="showcase-play"
-              aria-label={
-                playing
-                  ? "Приостановить анимацию и смену форматов"
-                  : "Включить анимацию и смену форматов"
-              }
-              onClick={() => setPlaying(!playing)}
-            >
-              {playing ? <Pause size={16} /> : <Play size={16} />}
-              <span>{playing ? "Пауза" : "Авто"}</span>
-            </button>
-            <button aria-label="Предыдущий формат" onClick={() => choose(index - 1)}>
-              <ArrowLeft size={23} />
-            </button>
-            <button aria-label="Следующий формат" onClick={() => choose(index + 1)}>
-              <ArrowRight size={23} />
-            </button>
+              <SelectTrigger
+                className="showcase-chooser"
+                aria-label={"Все 6 форматов. Выбрано: " + format.short}
+              >
+                <span>Все 6 форматов</span>
+              </SelectTrigger>
+              <SelectContent className="showcase-options" position="popper" align="start">
+                {mainFormats.map((item, i) => (
+                  <SelectItem key={item.slug} value={String(i)}>
+                    <span className="showcase-option-number">{item.number}</span>
+                    <span>{item.short}</span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="showcase-controls">
+              <span className="showcase-count" aria-label={"Формат " + (index + 1) + " из 6"}>
+                {format.number} / 06
+              </span>
+              <button
+                className="showcase-play"
+                aria-label={
+                  playing
+                    ? "Приостановить анимацию и смену форматов"
+                    : "Включить анимацию и смену форматов"
+                }
+                onClick={() => setPlaying(!playing)}
+              >
+                {playing ? <Pause size={16} /> : <Play size={16} />}
+                <span>{playing ? "Пауза" : "Авто"}</span>
+              </button>
+              <button aria-label="Предыдущий формат" onClick={() => choose(index - 1)}>
+                <ArrowLeft size={23} />
+              </button>
+              <button aria-label="Следующий формат" onClick={() => choose(index + 1)}>
+                <ArrowRight size={23} />
+              </button>
+            </div>
           </div>
         </div>
         <div className="showcase-note">
