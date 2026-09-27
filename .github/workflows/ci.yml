@@ -1,0 +1,37 @@
+name: Проверки проекта
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - uses: pnpm/action-setup@v6
+      - name: Установка зависимостей
+        run: pnpm install --frozen-lockfile
+      - name: Проверка типов
+        run: pnpm typecheck
+      - name: ESLint
+        run: pnpm lint
+      - name: Форматирование
+        run: pnpm format:check
+      - name: Сборка
+        run: pnpm build
