@@ -18,7 +18,7 @@ varying vec2 v_uv;
 uniform vec2 u_resolution;
 uniform vec2 u_pointer;
 uniform float u_time;
-uniform float u_edge_width;
+uniform vec2 u_edge_width;
 
 float hash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -48,9 +48,10 @@ void main() {
   vec2 warp = vec2(field(p * 2.3 + vec2(t, -t * 0.4)),
                    field(p * 2.3 + vec2(4.7, 1.3) - t * 0.35));
   float folded = field(p * 3.0 + warp * 2.6 + drift + vec2(-t * 0.35, t * 0.2));
-  // Move both side reflections inward by 7% of the viewport width.
-  float side = (min(uv.x, 1.0 - uv.x) - 0.07) / max(u_edge_width, 0.001);
-  float edge = (1.0 - smoothstep(0.10, 1.0, side)) * smoothstep(-1.0, 0.0, side);
+  // Keep every colored reflection inside the empty side gutters.
+  float width = uv.x < 0.5 ? u_edge_width.x : u_edge_width.y;
+  float side = min(uv.x, 1.0 - uv.x) / max(width, 0.00001);
+  float edge = (1.0 - smoothstep(0.10, 1.0, side)) * step(0.00001, width);
   float ribbon = exp(-abs(side - 0.28 + (folded - 0.48) * 0.75) * 4.0);
   float shade = smoothstep(0.30, 0.75, folded);
   vec3 paper = vec3(0.992, 0.989, 0.982);
@@ -120,7 +121,8 @@ export function createSoffitRenderer(canvas: HTMLCanvasElement, host: HTMLElemen
   const pointerUniform = gl.getUniformLocation(program!, "u_pointer");
   const timeUniform = gl.getUniformLocation(program!, "u_time");
   const edgeWidthUniform = gl.getUniformLocation(program!, "u_edge_width");
-  let edgeWidth = 0.03;
+  let leftWidth = 0.03;
+  let rightWidth = 0.03;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
   let playing = false;
@@ -143,20 +145,18 @@ export function createSoffitRenderer(canvas: HTMLCanvasElement, host: HTMLElemen
     gl!.uniform2f(resolution, canvas.width, canvas.height);
     gl!.uniform2f(pointerUniform, x, y);
     gl!.uniform1f(timeUniform, time);
-    gl!.uniform1f(edgeWidthUniform, edgeWidth);
+    gl!.uniform2f(edgeWidthUniform, leftWidth, rightWidth);
     gl!.drawArrays(gl!.TRIANGLES, 0, 6);
     canvas.dataset.ready = "true";
   }
   function resize() {
     const bounds = canvas.getBoundingClientRect();
-    // Preserve the reflection width independently of its inward offset.
-    const gutter =
-      bounds.width <= 760
-        ? 14
-        : bounds.width <= 1000
-          ? 20
-          : Math.max(48, (bounds.width - 1688) / 2 - 8);
-    edgeWidth = gutter / Math.max(bounds.width, 1);
+    // Shared measured limits also constrain the CSS fallback without WebGL.
+    const style = window.getComputedStyle(canvas.parentElement!);
+    leftWidth =
+      (parseFloat(style.getPropertyValue("--soffit-left")) || 0) / Math.max(bounds.width, 1);
+    rightWidth =
+      (parseFloat(style.getPropertyValue("--soffit-right")) || 0) / Math.max(bounds.width, 1);
     const dpr = Math.min(window.devicePixelRatio || 1, fine.matches ? 1.25 : 1);
     const scale = Math.min(
       dpr,
@@ -234,6 +234,7 @@ export function createSoffitRenderer(canvas: HTMLCanvasElement, host: HTMLElemen
   resize();
 
   return {
+    resize,
     setPlaying(value: boolean) {
       playing = value;
       sync();
