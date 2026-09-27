@@ -2099,10 +2099,12 @@ body:has(.home-page) .site-footer {
   background:
     linear-gradient(
       90deg,
-      #b822361c,
-      transparent var(--soffit-edge),
-      transparent calc(100% - var(--soffit-edge)),
-      #b822361c
+      transparent calc(7% - var(--soffit-edge)),
+      #b822361c 7%,
+      transparent calc(7% + var(--soffit-edge)),
+      transparent calc(93% - var(--soffit-edge)),
+      #b822361c 93%,
+      transparent calc(93% + var(--soffit-edge))
     ),
     #fdfcfb;
 }
