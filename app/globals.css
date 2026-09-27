@@ -2154,48 +2154,155 @@ h2 {
   color: var(--primary);
   border-color: var(--primary);
 }
+/* The editorial photo deck keeps the original hero footprint and image proportions. */
 .showcase-photo {
   position: relative;
   min-width: 0;
   aspect-ratio: 3/2;
   align-self: center;
-  background: #ebe9e3;
   touch-action: pan-y;
+  isolation: isolate;
 }
-.showcase-photo img {
+.depth-stage {
   position: absolute;
   inset: 0;
+  perspective: 1500px;
+  --depth-rx: 0deg;
+  --depth-ry: 0deg;
+  --depth-light-x: 50%;
+  --depth-light-y: 40%;
+}
+.depth-float {
+  position: absolute;
+  width: calc(100% - 64px);
+  aspect-ratio: 3/2;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  transform-style: preserve-3d;
+  animation: depth-breathe 8s ease-in-out infinite;
+  animation-play-state: paused;
+}
+.depth-stage[data-depth-enabled="true"][data-playing="true"]:not([data-tracking]) .depth-float {
+  animation-play-state: running;
+}
+.depth-rig {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--depth-rx)) rotateY(var(--depth-ry));
+}
+.depth-card {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  backface-visibility: hidden;
+  transform: translate3d(-28px, 24px, -180px) rotateY(-8deg);
+  opacity: 0;
+  visibility: hidden;
+  box-shadow:
+    0 1px 2px #25231f12,
+    0 18px 38px -22px #25231f45;
+  transition:
+    transform 1.05s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.65s ease,
+    visibility 0s 1.05s;
+  pointer-events: none;
+}
+.depth-card[data-slot="front"],
+.depth-card[data-slot="next"],
+.depth-card[data-slot="back"] {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+.depth-card[data-slot="front"] {
+  transform: translate3d(0, 0, 20px);
+}
+.depth-card[data-slot="next"] {
+  transform: translate3d(30px, -18px, -48px) rotateZ(3deg);
+}
+.depth-card[data-slot="back"] {
+  transform: translate3d(-26px, 12px, -96px) rotateZ(-3deg);
+}
+.depth-card img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  user-select: none;
+}
+.depth-sheen {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at var(--depth-light-x) var(--depth-light-y),
+    #ffffff26,
+    #ffffff00 65%
+  );
   opacity: 0;
-  transition: opacity 0.6s ease;
+  transition: opacity 0.5s ease;
   pointer-events: none;
 }
-.showcase-photo img.active {
+.depth-stage[data-tracking="true"] .depth-card[data-slot="front"] .depth-sheen {
   opacity: 1;
 }
-.showcase-photo:before,
-.showcase-photo:after {
+.depth-registration {
+  position: absolute;
+  inset: -9px;
+  transform: translateZ(38px);
+  pointer-events: none;
+}
+.depth-registration::before,
+.depth-registration::after {
   content: "";
   position: absolute;
-  z-index: 2;
   width: 18px;
   height: 18px;
   color: var(--primary);
-  pointer-events: none;
 }
-.showcase-photo:before {
-  top: -8px;
-  left: -8px;
+.depth-registration::before {
+  top: 0;
+  left: 0;
   border-top: 2px solid;
   border-left: 2px solid;
 }
-.showcase-photo:after {
-  bottom: -8px;
-  right: -8px;
-  border-bottom: 2px solid;
+.depth-registration::after {
+  right: 0;
+  bottom: 0;
   border-right: 2px solid;
+  border-bottom: 2px solid;
+}
+@keyframes depth-breathe {
+  0%,
+  100% {
+    transform: translateY(2px) rotateZ(-0.25deg);
+  }
+  50% {
+    transform: translateY(-5px) rotateZ(0.25deg);
+  }
+}
+/* Touch keeps the depth composition, without cursor motion or continuous movement. */
+@media (max-width: 760px), (hover: none), (pointer: coarse) {
+  .depth-float {
+    width: calc(100% - 28px);
+    animation: none;
+  }
+  .depth-rig {
+    transform: none;
+  }
+  .depth-card[data-slot="next"] {
+    transform: translate3d(12px, -7px, -48px) rotateZ(1.5deg);
+  }
+  .depth-card[data-slot="back"] {
+    transform: translate3d(-10px, 5px, -96px) rotateZ(-1.5deg);
+  }
+  .depth-card {
+    transition-duration: 0.6s, 0.4s, 0s;
+  }
+  .depth-sheen {
+    display: none;
+  }
 }
 .showcase-switch {
   display: flex;
@@ -2447,8 +2554,22 @@ h2 {
   .showcase-phrase {
     animation: none;
   }
-  .showcase-photo img {
+  .depth-float {
+    width: 100%;
+    animation: none;
+  }
+  .depth-rig,
+  .depth-card,
+  .depth-registration {
+    transform: none !important;
+  }
+  .depth-card {
     transition: none;
+    box-shadow: none;
+  }
+  .depth-card:not([data-slot="front"]),
+  .depth-sheen {
+    display: none;
   }
 }
 
@@ -2508,5 +2629,25 @@ h2 {
   }
   [data-parallax] {
     transform: none !important;
+  }
+}
+
+@media print {
+  .depth-float {
+    width: 100%;
+    animation: none;
+  }
+  .depth-rig,
+  .depth-card,
+  .depth-registration {
+    transform: none !important;
+  }
+  .depth-card {
+    transition: none;
+    box-shadow: none;
+  }
+  .depth-card:not([data-slot="front"]),
+  .depth-sheen {
+    display: none;
   }
 }
