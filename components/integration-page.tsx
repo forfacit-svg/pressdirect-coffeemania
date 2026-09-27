@@ -2,6 +2,7 @@ import { ArrowUpRight, ArrowLeft } from "lucide-react";
 import { ContactOptions } from "@/components/contact-options";
 import { LocationSection } from "@/components/locations";
 import { IntegrationStory } from "@/components/integration-story";
+import { showcaseFor } from "@/content/showcase";
 import media from "@/content/media.json";
 import {
   type Integration,
@@ -18,6 +19,7 @@ export function IntegrationPage({
   item: Integration;
   isDigital?: boolean;
 }) {
+  const showcase = showcaseFor(item.slug);
   return (
     <main id="main">
       <div className="detail-top section-wrap">
@@ -34,7 +36,7 @@ export function IntegrationPage({
           (item.image === null ? "no-image" : "")
         }
       >
-        <div className="detail-title">
+        <div className="detail-title" data-reveal>
           <h1>{item.title}</h1>
           <p>{item.description}</p>
           <a className="text-link" href={contactHref(item.title)}>
@@ -42,11 +44,15 @@ export function IntegrationPage({
           </a>
         </div>
         {item.image !== null && (
-          <div className="detail-cover">
+          <div
+            className={"detail-cover" + (showcase ? " curated-cover" : "")}
+            data-reveal
+            data-parallax="14"
+          >
             <img
-              src={"/media/image" + item.image + ".webp"}
-              alt={item.title + " — пример размещения в Кофемании"}
-              style={{ objectPosition: item.position }}
+              src={showcase?.src ?? "/media/image" + item.image + ".webp"}
+              alt={showcase?.alt ?? item.title + " — пример размещения в Кофемании"}
+              style={{ objectPosition: showcase ? "50% 50%" : item.position }}
               fetchPriority="high"
             />
           </div>
@@ -54,7 +60,7 @@ export function IntegrationPage({
       </section>
       <div className="facts section-wrap">
         {item.facts.map(([value, label]) => (
-          <div key={label}>
+          <div key={label} data-reveal>
             <strong>{value}</strong>
             <span>{label}</span>
           </div>
@@ -62,16 +68,16 @@ export function IntegrationPage({
       </div>
       <IntegrationStory slug={item.slug} />
       <section className="placement-section section-wrap" id="placement">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <h2>Обсудим вашу интеграцию</h2>
           <span className="eyebrow">Прессдирект</span>
         </div>
-        <p className="section-note">
+        <p className="section-note" data-reveal>
           Напишите нам или позвоните. Подберём площадки, согласуем сроки и подготовим предложение
           для вашего бренда.
         </p>
         <ContactOptions format={item.title} />
-        <div className="conditions">
+        <div className="conditions" data-reveal>
           <h3>Условия размещения</h3>
           <ul>
             {item.conditions.map((x) => (
@@ -80,7 +86,7 @@ export function IntegrationPage({
           </ul>
         </div>
         {item.specs && (
-          <div className="specs">
+          <div className="specs" data-reveal>
             <h3>Требования к материалам</h3>
             <dl>
               {item.specs.map(([k, v]) => (
@@ -95,7 +101,7 @@ export function IntegrationPage({
       </section>
       {item.gallery.length > 0 && (
         <section className="gallery-section section-wrap">
-          <div className="section-heading">
+          <div className="section-heading" data-reveal>
             <h2>{isDigital ? "Как выглядит размещение" : "Примеры интеграций"}</h2>
             <span className="eyebrow">Кофемания × бренды</span>
           </div>
@@ -105,7 +111,7 @@ export function IntegrationPage({
                 "image" + img + ".webp"
               ];
               return (
-                <figure key={img}>
+                <figure key={img} data-reveal data-reveal-delay={(i % 2) * 80}>
                   <div>
                     <img
                       src={"/media/image" + img + ".webp"}
@@ -128,7 +134,7 @@ export function IntegrationPage({
       )}
       <LocationSection scope={item.scope} />
       <section className="other-formats section-wrap">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <h2>Другие форматы</h2>
           <a className="text-link" href={isDigital ? "/integrations/digital" : "/"}>
             Все форматы <ArrowUpRight size={18} />
@@ -139,7 +145,11 @@ export function IntegrationPage({
             .filter((x) => x.slug !== item.slug)
             .slice(0, 3)
             .map((x) => (
-              <a key={x.slug} href={isDigital ? digitalHref(x.slug) : formatHref(x.slug)}>
+              <a
+                key={x.slug}
+                data-reveal="row"
+                href={isDigital ? digitalHref(x.slug) : formatHref(x.slug)}
+              >
                 {x.title}
                 <ArrowUpRight size={21} />
               </a>
