@@ -18,6 +18,7 @@ varying vec2 v_uv;
 uniform vec2 u_resolution;
 uniform vec2 u_pointer;
 uniform float u_time;
+uniform float u_edge_width;
 
 float hash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -47,17 +48,17 @@ void main() {
   vec2 warp = vec2(field(p * 2.3 + vec2(t, -t * 0.4)),
                    field(p * 2.3 + vec2(4.7, 1.3) - t * 0.35));
   float folded = field(p * 3.0 + warp * 2.6 + drift + vec2(-t * 0.35, t * 0.2));
-  float opening = uv.x - 0.55 + (uv.y - 0.4) * 0.20
-                  + (folded - 0.48) * 0.48 + drift.x;
-  // White is the material; the brand color is only a faint moving reflection.
-  float ribbon = exp(-abs(opening - 0.035) * 12.0);
-  float echo = exp(-abs(uv.x - 0.18 + (folded - 0.48) * 0.32) * 14.0);
+  // Keep every colored reflection inside the empty side gutters.
+  float side = min(uv.x, 1.0 - uv.x) / max(u_edge_width, 0.001);
+  float edge = 1.0 - smoothstep(0.10, 1.0, side);
+  float ribbon = exp(-abs(side - 0.28 + (folded - 0.48) * 0.75) * 4.0);
   float shade = smoothstep(0.30, 0.75, folded);
   vec3 paper = vec3(0.992, 0.989, 0.982);
   vec3 brand = vec3(0.7216, 0.1333, 0.2118);
-  vec3 color = mix(paper, vec3(0.84, 0.83, 0.82), shade * 0.065);
-  color = mix(color, brand, 0.11 * pow(ribbon, 1.5) + 0.035 * echo);
-  color = mix(color, vec3(1.0, 0.998, 0.994), smoothstep(0.25, 0.7, warp.x) * 0.22);
+  vec3 color = mix(paper, vec3(0.84, 0.83, 0.82), shade * 0.065 * edge);
+  float reflection = 1.20 * (0.11 * pow(ribbon, 1.5) + 0.035 * warp.y) * edge;
+  color = mix(color, brand, reflection);
+  color = mix(color, vec3(1.0, 0.998, 0.994), smoothstep(0.25, 0.7, warp.x) * 0.22 * edge);
   float grain = (hash(gl_FragCoord.xy) - 0.5) / 255.0;
   gl_FragColor = vec4(clamp(color + grain, 0.0, 1.0), 1.0);
 }`;
@@ -118,6 +119,8 @@ export function createSoffitRenderer(canvas: HTMLCanvasElement, host: HTMLElemen
   const resolution = gl.getUniformLocation(program!, "u_resolution");
   const pointerUniform = gl.getUniformLocation(program!, "u_pointer");
   const timeUniform = gl.getUniformLocation(program!, "u_time");
+  const edgeWidthUniform = gl.getUniformLocation(program!, "u_edge_width");
+  let edgeWidth = 0.03;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
   let playing = false;
@@ -140,11 +143,20 @@ export function createSoffitRenderer(canvas: HTMLCanvasElement, host: HTMLElemen
     gl!.uniform2f(resolution, canvas.width, canvas.height);
     gl!.uniform2f(pointerUniform, x, y);
     gl!.uniform1f(timeUniform, time);
+    gl!.uniform1f(edgeWidthUniform, edgeWidth);
     gl!.drawArrays(gl!.TRIANGLES, 0, 6);
     canvas.dataset.ready = "true";
   }
   function resize() {
     const bounds = canvas.getBoundingClientRect();
+    // These gutters stop before the header, main content and footer text.
+    const gutter =
+      bounds.width <= 760
+        ? 14
+        : bounds.width <= 1000
+          ? 20
+          : Math.max(48, (bounds.width - 1688) / 2 - 8);
+    edgeWidth = gutter / Math.max(bounds.width, 1);
     const dpr = Math.min(window.devicePixelRatio || 1, fine.matches ? 1.25 : 1);
     const scale = Math.min(
       dpr,

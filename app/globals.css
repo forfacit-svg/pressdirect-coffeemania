@@ -2090,14 +2090,31 @@ body:has(.home-page) .site-footer {
   background: transparent;
 }
 .soffit-backdrop {
+  --soffit-edge: max(48px, calc((100vw - 1688px) / 2 - 8px));
   position: fixed;
   z-index: -1;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 68% 58%, #b8223617, transparent 44%),
-    radial-gradient(ellipse at 18% 35%, #b8223608, transparent 35%), #fdfcfb;
+    linear-gradient(
+      90deg,
+      #b822361c,
+      transparent var(--soffit-edge),
+      transparent calc(100% - var(--soffit-edge)),
+      #b822361c
+    ),
+    #fdfcfb;
+}
+@media (max-width: 1000px) {
+  .soffit-backdrop {
+    --soffit-edge: 20px;
+  }
+}
+@media (max-width: 760px) {
+  .soffit-backdrop {
+    --soffit-edge: 14px;
+  }
 }
 .soffit-canvas {
   display: block;
