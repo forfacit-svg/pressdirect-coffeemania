@@ -4,7 +4,7 @@ import { ArrowUpRight, ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { mainFormats, formatHref } from "@/content/integrations";
 import { ShowcaseLiquid } from "@/components/showcase-liquid";
-import { SoffitBackdrop } from "@/components/soffit-backdrop";
+import { startShowcaseAutoplay } from "@/lib/showcase-autoplay";
 
 const phrases = [
   "рекламу в папке для счёта",
@@ -25,8 +25,6 @@ const descriptions = [
 export function HomeExperience() {
   const [index, setIndex] = useState(1);
   const [playing, setPlaying] = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
   const [chooserOpen, setChooserOpen] = useState(false);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const format = mainFormats[index];
@@ -52,12 +50,11 @@ export function HomeExperience() {
     return () => motion.removeEventListener("change", stop);
   }, []);
   useEffect(() => {
-    if (!playing || hovered || focused || chooserOpen) return;
-    const timer = setInterval(() => {
-      if (!document.hidden) setIndex((current) => (current + 1) % mainFormats.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [index, playing, hovered, focused, chooserOpen]);
+    if (!playing || chooserOpen) return;
+    return startShowcaseAutoplay(() => {
+      setIndex((current) => (current + 1) % mainFormats.length);
+    });
+  }, [index, playing, chooserOpen]);
   function remember(next: number) {
     try {
       sessionStorage.setItem("pressdirect-format", String(next));
@@ -68,20 +65,20 @@ export function HomeExperience() {
   function choose(next: number) {
     const selected = (next + mainFormats.length) % mainFormats.length;
     setIndex(selected);
-    setPlaying(false);
     setChooserOpen(false);
     remember(selected);
   }
   return (
     <main id="main" className="home-page">
-      <SoffitBackdrop playing={playing} />
       <section
         className="showcase section-wrap"
         aria-label="Выбор интеграции"
         aria-roledescription="карусель"
-        onFocusCapture={() => setFocused(true)}
-        onBlurCapture={(event) => {
-          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false);
+        onFocusCapture={(event) => {
+          // Keyboard reading pauses rotation. Pointer focus never locks the Auto button.
+          if (event.target.matches(":focus-visible") && !event.target.closest(".showcase-play")) {
+            setPlaying(false);
+          }
         }}
       >
         <div className="showcase-meta">
@@ -89,12 +86,7 @@ export function HomeExperience() {
           <span>Рекламные и партнёрские интеграции</span>
         </div>
         <div className="showcase-hero">
-          <div
-            className="showcase-copy"
-            data-reveal
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-          >
+          <div className="showcase-copy" data-reveal>
             <h1>Мы делаем</h1>
             <div
               className="showcase-current"
@@ -124,8 +116,6 @@ export function HomeExperience() {
             className="showcase-photo"
             data-reveal
             data-parallax="16"
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
             onTouchStart={(event) => {
               touchStart.current = {
                 x: event.touches[0].clientX,
@@ -178,10 +168,10 @@ export function HomeExperience() {
               className="showcase-play"
               aria-label={
                 playing
-                  ? "Приостановить анимацию и смену форматов"
-                  : "Включить анимацию и смену форматов"
+                  ? "Приостановить автоматическую смену фото"
+                  : "Включить автоматическую смену фото"
               }
-              onClick={() => setPlaying(!playing)}
+              onClick={() => setPlaying((current) => !current)}
             >
               {playing ? <Pause size={16} /> : <Play size={16} />}
               <span>{playing ? "Пауза" : "Авто"}</span>
