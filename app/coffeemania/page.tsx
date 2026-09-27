@@ -7,7 +7,7 @@ export const metadata = {
 export default function Coffeemania() {
   return (
     <main id="main">
-      <section className="page-title section-wrap about-title">
+      <section className="page-title section-wrap about-title" data-reveal>
         <span className="eyebrow">Кофемания × бренды</span>
         <h1>
           Часть городской жизни.
@@ -19,24 +19,24 @@ export default function Coffeemania() {
           Встречи, завтраки, обеды и кофе перед вылетом создают разные сценарии общения с гостем.
         </p>
       </section>
-      <div className="about-photo section-wrap">
+      <div className="about-photo section-wrap" data-reveal data-parallax="20">
         <img src="/media/image32.webp" alt="Заказ с собой в ресторане Кофемания" />
       </div>
       <section className="facts section-wrap">
-        <div>
+        <div data-reveal>
           <strong>25 лет</strong>
           <span>истории к 2026 году</span>
         </div>
-        <div>
+        <div data-reveal>
           <strong>35</strong>
           <span>городских ресторанов в адресной программе, включая «скоро»</span>
         </div>
-        <div>
+        <div data-reveal>
           <strong>3</strong>
           <span>ресторана в Шереметьево</span>
         </div>
       </section>
-      <section className="home-context section-wrap">
+      <section className="home-context section-wrap" data-reveal>
         <span className="eyebrow">Партнёрство с Кофеманией</span>
         <div>
           <h2>
@@ -54,7 +54,7 @@ export default function Coffeemania() {
           </a>
         </div>
       </section>
-      <section className="about-links section-wrap">
+      <section className="about-links section-wrap" data-reveal>
         <a href="/addresses">
           Рестораны и адреса
           <ArrowUpRight size={25} />

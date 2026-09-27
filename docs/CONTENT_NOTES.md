@@ -24,11 +24,15 @@ There are no published rates or tax notes. Every format page offers direct email
 
 ## Images and design
 
-Images are extracted from the original presentation, optimized in WebP, and shown without generative changes. Galleries preserve proportions, including small originals.
+Original gallery images are extracted from the supplied presentation, optimized in WebP, and preserve their proportions, including small originals.
+
+The six showcase images in `public/media/showcase/` were separately approved by the owner. Five are AI-assisted edits of the supplied folder (image9), collaboration (image21), catalogue (image26), delivery (image34), and airport (image35) photographs. The digital image uses the original image42 screenshot composited into a vector phone frame; the screenshot content and typography were not regenerated. Frame proportions follow Apple’s iPhone 17 Pro Max dimensional drawing (77.98 × 163.43 mm). The source galleries remain unchanged.
+
+Showcase assets are referenced by `content/showcase.ts`, displayed at their full 3:2 ratio, and reused on the corresponding page covers. Their source is the owner-supplied material; the original presentation is not included in this repository.
 
 The logo is a typographic recreation of the low-resolution screenshot, adapted for the requested light background. It can be replaced with an official vector master when available.
 
-The home statement rotates every five seconds. Integration titles and navigation items open full pages through native anchors.
+The approved home layout places the statement beside open photography, with a compact six-format selector below. The home statement rotates every five seconds. Integration titles and navigation items open full pages through native anchors.
 
 ## Updating
 

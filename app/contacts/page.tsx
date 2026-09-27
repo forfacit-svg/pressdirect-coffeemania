@@ -17,7 +17,7 @@ export default async function Contacts({
     (selected ? "?subject=" + encodeURIComponent("Интеграция в Кофемании: " + selected.title) : "");
   return (
     <main id="main">
-      <section className="page-title section-wrap">
+      <section className="page-title section-wrap" data-reveal>
         <span className="eyebrow">Прессдирект / Контакты</span>
         <h1>
           Начнём
@@ -35,7 +35,7 @@ export default async function Contacts({
         )}
       </section>
       <section className="contacts-grid section-wrap">
-        <div>
+        <div data-reveal>
           <span className="eyebrow">Партнёрские проекты</span>
           <a href={mailto}>
             partner@pressdirect.ru
@@ -46,7 +46,7 @@ export default async function Contacts({
             <ArrowUpRight size={19} />
           </a>
         </div>
-        <div>
+        <div data-reveal data-reveal-delay="80">
           <span className="eyebrow">Позвонить</span>
           <a href="tel:+74957402336">
             +7 495 740-23-36
@@ -56,12 +56,12 @@ export default async function Contacts({
         </div>
       </section>
       <section className="process section-wrap">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <h2>От идеи до запуска</h2>
         </div>
         <ol>
           {["Бриф", "Идея", "Согласование", "Запуск", "Отчётность"].map((x, i) => (
-            <li key={x}>
+            <li key={x} data-reveal="row" data-reveal-delay={Math.min(i * 50, 150)}>
               <span className="row-number">0{i + 1}</span>
               <h3>{x}</h3>
             </li>

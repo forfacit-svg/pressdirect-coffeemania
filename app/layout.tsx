@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Header, Footer } from "@/components/site-shell";
+import { SiteMotion } from "@/components/site-motion";
 import "./globals.css";
 export const metadata: Metadata = {
   title: { default: "Прессдирект — интеграции в Кофемании", template: "%s — Прессдирект" },
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         {children}
         <Footer />
+        <SiteMotion />
       </body>
     </html>
   );

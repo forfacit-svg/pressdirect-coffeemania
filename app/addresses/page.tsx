@@ -8,7 +8,7 @@ export const metadata = {
 export default function Addresses() {
   return (
     <main id="main" className="addresses-page">
-      <section className="page-title section-wrap">
+      <section className="page-title section-wrap" data-reveal>
         <span className="eyebrow">Адресная программа / 2026</span>
         <h1>
           Места встречи
@@ -24,14 +24,14 @@ export default function Addresses() {
         </div>
       </section>
       <section id="city" className="section-wrap">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <h2>Москва и Московская область</h2>
           <span className="eyebrow">35 адресов</span>
         </div>
         <LocationList area="city" />
       </section>
       <section id="airport" className="section-wrap airport-addresses">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <h2>Шереметьево</h2>
           <span className="eyebrow">3 ресторана</span>
         </div>

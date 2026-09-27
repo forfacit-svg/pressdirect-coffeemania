@@ -47,7 +47,7 @@ export function Header() {
 export function Footer() {
   return (
     <footer className="site-footer">
-      <div className="footer-top">
+      <div className="footer-top" data-reveal>
         <a href="/" aria-label="Прессдирект — главная">
           <Brand />
         </a>
@@ -61,7 +61,7 @@ export function Footer() {
           <a href="tel:+74957402336">+7 495 740-23-36</a>
         </div>
       </div>
-      <div className="footer-bottom">
+      <div className="footer-bottom" data-reveal="row">
         <span>© 2026 Прессдирект</span>
         <span>Москва и Московская область</span>
         <a href="/contacts">

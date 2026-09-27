@@ -1,5 +1,6 @@
 import { ArrowUpRight, ArrowLeft } from "lucide-react";
 import { digital, digitalHref } from "@/content/integrations";
+import { showcaseImages } from "@/content/showcase";
 import { ContactOptions } from "@/components/contact-options";
 import { LocationSection } from "@/components/locations";
 export const metadata = {
@@ -18,7 +19,7 @@ export default function Digital() {
         <span className="eyebrow">Digital / 2026</span>
       </div>
       <section className="digital-intro section-wrap">
-        <div>
+        <div data-reveal>
           <h1>
             На связи
             <br />с вашим гостем.
@@ -32,21 +33,26 @@ export default function Digital() {
             Выбрать формат ↓
           </a>
         </div>
-        <div className="digital-visual">
-          <img src="/media/image42.webp" alt="Пример Stories в приложении Кофемании" />
-          <img src="/media/image43.webp" alt="Пример баннера на экране успешного заказа" />
+        <div className="digital-visual curated-visual" data-reveal data-parallax="12">
+          <img
+            src={showcaseImages.digital.src}
+            alt={showcaseImages.digital.alt}
+            width={1536}
+            height={1024}
+            fetchPriority="high"
+          />
         </div>
       </section>
       <section className="digital-formats section-wrap" id="digital-formats">
-        <div className="section-heading">
+        <div className="section-heading" data-reveal>
           <h2>Семь точек контакта</h2>
           <span className="eyebrow">Форматы / 2026</span>
         </div>
-        <p className="section-note">
+        <p className="section-note" data-reveal>
           Выберите формат и свяжитесь с нами, чтобы обсудить условия размещения.
         </p>
         {digital.map((x, i) => (
-          <a key={x.slug} href={digitalHref(x.slug)} className="digital-row">
+          <a key={x.slug} href={digitalHref(x.slug)} className="digital-row" data-reveal="row">
             <span className="row-number">{String(i + 1).padStart(2, "0")}</span>
             <div>
               <h3>{x.title}</h3>
@@ -58,7 +64,7 @@ export default function Digital() {
         ))}
       </section>
       <section className="digital-inquiry section-wrap">
-        <h2>Подберём подходящий формат</h2>
+        <h2 data-reveal>Подберём подходящий формат</h2>
         <p>Расскажите о вашей задаче по почте или телефону.</p>
         <ContactOptions format="Цифровые интеграции" />
       </section>

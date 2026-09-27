@@ -14,7 +14,12 @@ export function LocationList({
   return (
     <div className="location-grid">
       {list.map((x) => (
-        <article className="location" key={x.id}>
+        <article
+          className="location"
+          key={x.id}
+          data-reveal="row"
+          data-reveal-delay={(x.id % 2) * 50}
+        >
           <span className="row-number">{String(x.id).padStart(2, "0")}</span>
           <div>
             <h3>
@@ -35,13 +40,13 @@ export function LocationSection({ scope }: { scope: Integration["scope"] }) {
     network = scope === "digital" || scope === "wifi";
   return (
     <section className="locations-section section-wrap" id="locations">
-      <div className="section-heading">
+      <div className="section-heading" data-reveal>
         <h2>{network ? "Адреса ресторанов сети" : "Где разместить интеграцию"}</h2>
         <span className="eyebrow">
           {airport ? "Шереметьево" : both ? "Город и аэропорт" : "Москва и область"}
         </span>
       </div>
-      <p className="section-note">
+      <p className="section-note" data-reveal>
         {scope === "wifi"
           ? "Для Wi-Fi доступны 22 ресторана. Ниже приведён общий адресный список сети; точный состав подключённых площадок согласовывается отдельно."
           : network
