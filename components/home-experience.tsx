@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { mainFormats, formatHref } from "@/content/integrations";
-import { showcaseImages } from "@/content/showcase";
+import { ShowcaseDepth } from "@/components/showcase-depth";
 
 const phrases = [
   "рекламу в папке для счёта",
@@ -34,12 +34,15 @@ export function HomeExperience() {
       const saved = sessionStorage.getItem("pressdirect-format");
       const parsed = saved === null ? 1 : Number(saved);
       // Restore browser-only state after hydration so the server and first client render agree.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (Number.isInteger(parsed) && parsed >= 0 && parsed < mainFormats.length) setIndex(parsed);
+      if (Number.isInteger(parsed) && parsed >= 0 && parsed < mainFormats.length) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setIndex(parsed);
+      }
     } catch {
       /* Optional preference. */
     }
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // Respect the browser motion preference after hydration.
     setPlaying(!motion.matches);
     const stop = () => {
       if (motion.matches) setPlaying(false);
@@ -119,8 +122,13 @@ export function HomeExperience() {
             className="showcase-photo"
             data-reveal
             data-parallax="16"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
             onTouchStart={(event) => {
-              touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+              touchStart.current = {
+                x: event.touches[0].clientX,
+                y: event.touches[0].clientY,
+              };
             }}
             onTouchEnd={(event) => {
               if (touchStart.current) {
@@ -135,19 +143,7 @@ export function HomeExperience() {
               touchStart.current = null;
             }}
           >
-            {mainFormats.map((item, i) => (
-              <img
-                key={item.slug}
-                className={i === index ? "active" : ""}
-                src={showcaseImages[item.slug].src}
-                alt={showcaseImages[item.slug].alt}
-                aria-hidden={i !== index}
-                width={1536}
-                height={1024}
-                fetchPriority={i === 1 ? "high" : "auto"}
-                loading={i === 1 ? "eager" : "lazy"}
-              />
-            ))}
+            <ShowcaseDepth index={index} playing={playing && !focused && !chooserOpen} />
           </div>
         </div>
         <div className="showcase-switch" data-reveal="row">
