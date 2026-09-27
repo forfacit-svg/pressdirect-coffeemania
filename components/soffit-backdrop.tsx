@@ -8,7 +8,7 @@ export function SoffitBackdrop({ playing }: { playing: boolean }) {
   const renderer = useRef<ReturnType<typeof createSoffitRenderer>>(null);
   useEffect(() => {
     const element = canvas.current;
-    const host = element?.closest<HTMLElement>(".showcase");
+    const host = element?.ownerDocument.body;
     if (!element || !host) return;
     try {
       renderer.current = createSoffitRenderer(element, host);
@@ -27,7 +27,6 @@ export function SoffitBackdrop({ playing }: { playing: boolean }) {
   return (
     <div className="soffit-backdrop" aria-hidden="true">
       <canvas ref={canvas} className="soffit-canvas" />
-      <div className="soffit-reading-light" />
     </div>
   );
 }

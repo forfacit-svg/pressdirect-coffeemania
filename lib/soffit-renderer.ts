@@ -49,17 +49,15 @@ void main() {
   float folded = field(p * 3.0 + warp * 2.6 + drift + vec2(-t * 0.35, t * 0.2));
   float opening = uv.x - 0.55 + (uv.y - 0.4) * 0.20
                   + (folded - 0.48) * 0.48 + drift.x;
-  float redBody = smoothstep(-0.06, 0.39, opening);
-  float shadow = smoothstep(0.12, 0.48, opening + (warp.y - 0.5) * 0.12);
-  float bounce = exp(-abs(opening - 0.07) * 9.0) * (0.3 + 0.7 * folded);
-  vec3 paper = vec3(0.9804, 0.9765, 0.9647);
-  vec3 blush = vec3(0.91, 0.69, 0.69);
+  // White is the material; the brand color is only a faint moving reflection.
+  float ribbon = exp(-abs(opening - 0.035) * 12.0);
+  float echo = exp(-abs(uv.x - 0.18 + (folded - 0.48) * 0.32) * 14.0);
+  float shade = smoothstep(0.30, 0.75, folded);
+  vec3 paper = vec3(0.992, 0.989, 0.982);
   vec3 brand = vec3(0.7216, 0.1333, 0.2118);
-  vec3 wine = vec3(0.34, 0.052, 0.105);
-  vec3 color = mix(paper, blush, smoothstep(-0.3, 0.13, opening) * 0.70);
-  color = mix(color, brand, redBody * 0.78);
-  color = mix(color, wine, shadow * 0.70);
-  color += bounce * vec3(0.11, 0.08, 0.065);
+  vec3 color = mix(paper, vec3(0.84, 0.83, 0.82), shade * 0.065);
+  color = mix(color, brand, 0.11 * pow(ribbon, 1.5) + 0.035 * echo);
+  color = mix(color, vec3(1.0, 0.998, 0.994), smoothstep(0.25, 0.7, warp.x) * 0.22);
   float grain = (hash(gl_FragCoord.xy) - 0.5) / 255.0;
   gl_FragColor = vec4(clamp(color + grain, 0.0, 1.0), 1.0);
 }`;
@@ -185,7 +183,7 @@ export function createSoffitRenderer(canvas: HTMLCanvasElement, host: HTMLElemen
   }
   function move(event: PointerEvent) {
     if (!running() || !fine.matches || event.pointerType !== "mouse") return;
-    const bounds = host.getBoundingClientRect();
+    const bounds = canvas.getBoundingClientRect();
     targetX = Math.max(
       -1,
       Math.min(1, (2 * (event.clientX - bounds.left)) / Math.max(bounds.width, 1) - 1),
