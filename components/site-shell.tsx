@@ -16,16 +16,20 @@ export function Brand({ compact = false }: { compact?: boolean }) {
     </span>
   );
 }
-export function Header() {
+export function Header({ cinematicHome = false }: { cinematicHome?: boolean }) {
   const pathname = usePathname();
+  const immersive = cinematicHome && pathname === "/";
   return (
-    <header className="site-header">
+    <header className={"site-header" + (immersive ? " is-cinematic" : "")}>
       <a className="brand-link" href="/" aria-label="Прессдирект — главная">
         <Brand />
       </a>
       <nav aria-label="Основная навигация">
-        <a href="/" aria-current={pathname === "/" ? "page" : undefined}>
-          Интеграции
+        <a
+          href={cinematicHome ? "/#formats" : "/"}
+          aria-current={pathname === "/" ? "page" : undefined}
+        >
+          {cinematicHome ? "Форматы" : "Интеграции"}
         </a>
         <a href="/coffeemania" aria-current={pathname === "/coffeemania" ? "page" : undefined}>
           Кофемания
