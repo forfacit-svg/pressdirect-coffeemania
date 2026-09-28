@@ -3,6 +3,13 @@
 @import "../vendor/shadcn-tailwind-4.13.0.css";
 
 @font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/manrope-medium.ttf") format("truetype");
+}
+@font-face {
   font-family: "Prata";
   font-style: normal;
   font-weight: 400;
@@ -20,6 +27,7 @@
 :root {
   color-scheme: light;
   --font-heading: "Prata", Georgia, "Times New Roman", serif;
+  --font-format: "Manrope", Arial, Helvetica, sans-serif;
   --font-body: "Golos Text", Arial, Helvetica, sans-serif;
   --background: #faf9f6;
   --foreground: #25231f;
@@ -113,15 +121,18 @@ p {
 h1,
 h2,
 h3,
-h4,
-.statement-prefix,
-.statement-phrase {
+h4 {
   font-family: var(--font-heading);
   font-weight: 400;
   font-synthesis: none;
   letter-spacing: -0.02em;
   text-wrap: balance;
   overflow-wrap: anywhere;
+}
+.statement-prefix,
+.statement-phrase {
+  font-family: var(--font-format);
+  font-weight: 500;
 }
 .skip-link {
   position: absolute;
@@ -168,14 +179,14 @@ h4,
   white-space: nowrap;
 }
 .brand-word {
-  font-family: var(--font-heading);
+  font-family: Arial, Helvetica, sans-serif;
   font-size: 22px;
   letter-spacing: 1px;
-  font-weight: 400;
+  font-weight: 300;
   line-height: 1;
 }
 .brand-word b {
-  font-weight: 400;
+  font-weight: 700;
   color: #b82236;
 }
 .brand-corner {
@@ -1833,7 +1844,7 @@ h2 {
 .statement-prefix {
   display: block;
   font-size: 25px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   color: var(--muted-foreground);
   margin-bottom: 9px;
 }
@@ -1848,7 +1859,7 @@ h2 {
   display: block;
   font-size: clamp(31px, 3.3vw, 47px);
   line-height: 1.13;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.038em;
   animation: phrase-in 0.55s cubic-bezier(0.2, 0.75, 0.25, 1) both;
 }
 .statement-arrow {
@@ -2020,7 +2031,7 @@ h2 {
   .statement-phrase {
     font-size: 29px;
     line-height: 1.15;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.035em;
   }
   .statement-arrow {
     width: 22px;
@@ -2135,15 +2146,12 @@ body:has(.home-page) .site-footer {
 .showcase-phrase {
   display: block;
   color: var(--primary);
-  font-family: var(--font-heading);
-  font-weight: 400;
-  font-synthesis: none;
-  font-size: clamp(28px, 9.4cqi, 52px);
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-  overflow-wrap: anywhere;
-  min-height: 3.6em;
+  font-family: var(--font-format);
+  font-weight: 500;
+  font-size: clamp(30px, 3.5vw, 52px);
+  line-height: 1.14;
+  letter-spacing: -0.045em;
+  min-height: 3.42em;
   margin-top: 16px;
   margin-bottom: 20px;
   animation: showcase-reveal 0.45s ease both;
@@ -2418,7 +2426,7 @@ body:has(.home-page) .site-footer {
     font-size: clamp(44px, 16cqi, 60px);
   }
   .showcase-phrase {
-    font-size: clamp(28px, 9.4cqi, 38px);
+    font-size: clamp(30px, 3.4vw, 38px);
     margin-bottom: 16px;
   }
   .showcase-current p {
@@ -2451,14 +2459,14 @@ body:has(.home-page) .site-footer {
     font-size: clamp(44px, 16cqi, 65px);
   }
   .showcase-phrase {
-    font-size: clamp(28px, 9.4cqi, 44px);
-    min-height: 3.6em;
+    font-size: clamp(30px, 7vw, 44px);
+    min-height: 3.42em;
     margin: 12px 0 14px;
     max-width: 610px;
   }
   .showcase-current p {
     max-width: 520px;
-    min-height: calc(4.95em + 14px);
+    min-height: 4.3em;
     padding-bottom: 14px;
   }
   .showcase-open {
@@ -2503,9 +2511,6 @@ body:has(.home-page) .site-footer {
   }
 }
 @media (max-width: 370px) {
-  .showcase-current p {
-    min-height: calc(6.6em + 14px);
-  }
   .showcase-switch {
     flex-wrap: wrap;
   }

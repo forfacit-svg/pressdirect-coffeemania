@@ -14,6 +14,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link
           rel="preload"
+          href="/fonts/manrope-medium.ttf"
+          as="font"
+          type="font/ttf"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
           href="/fonts/prata-regular.ttf"
           as="font"
           type="font/ttf"
