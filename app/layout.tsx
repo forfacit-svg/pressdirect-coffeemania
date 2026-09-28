@@ -3,7 +3,10 @@ import { Header, Footer } from "@/components/site-shell";
 import { SiteMotion } from "@/components/site-motion";
 import "./globals.css";
 export const metadata: Metadata = {
-  title: { default: "Прессдирект — интеграции в Кофемании", template: "%s — Прессдирект" },
+  title: {
+    default: "Прессдирект — интеграции в Кофемании",
+    template: "%s — Прессдирект",
+  },
   description:
     "Рекламные и партнёрские интеграции в Кофемании: форматы размещения, фотографии, условия размещения и адреса ресторанов.",
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
@@ -38,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a className="skip-link" href="#main">
           К содержанию
         </a>
-        <Header />
+        <Header cinematicHome />
         {children}
         <Footer />
         <SiteMotion />

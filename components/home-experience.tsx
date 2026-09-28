@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowUpRight, ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { mainFormats, formatHref } from "@/content/integrations";
@@ -23,7 +23,7 @@ const descriptions = [
   "Ваше сообщение — в повседневном ритуале гостя перед полётом.",
   "Сайт, приложение, Wi-Fi и Яндекс Карты — разные моменты встречи с гостем.",
 ];
-export function HomeExperience() {
+export function HomeExperience({ hero }: { hero?: ReactNode } = {}) {
   const [index, setIndex] = useState(1);
   const [playing, setPlaying] = useState(false);
   const [chooserOpen, setChooserOpen] = useState(false);
@@ -31,6 +31,7 @@ export function HomeExperience() {
   const progress = useRef<HTMLDivElement>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const format = mainFormats[index];
+  const ShowcaseHeading = hero ? "h2" : "h1";
   useEffect(() => {
     try {
       const saved = sessionStorage.getItem("pressdirect-format");
@@ -97,8 +98,10 @@ export function HomeExperience() {
     remember(selected);
   }
   return (
-    <main id="main" className="home-page">
+    <main id="main" className={"home-page" + (hero ? " cinematic-home" : "")}>
+      {hero}
       <section
+        id="formats"
         className="showcase section-wrap"
         aria-label="Выбор интеграции"
         aria-roledescription="карусель"
@@ -115,7 +118,7 @@ export function HomeExperience() {
         </div>
         <div className="showcase-hero">
           <div className="showcase-copy" data-reveal>
-            <h1>Мы делаем</h1>
+            <ShowcaseHeading className="showcase-heading">Мы делаем</ShowcaseHeading>
             <div
               className="showcase-current"
               aria-live={playing ? "off" : "polite"}
