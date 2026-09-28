@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/u
 import { mainFormats, formatHref } from "@/content/integrations";
 import { ShowcaseLiquid } from "@/components/showcase-liquid";
 import { startShowcaseAutoplay } from "@/lib/showcase-autoplay";
+import { FormatPreviewList } from "@/components/format-preview-list";
 
 const phrases = [
   "рекламу в папке для счёта",
@@ -26,6 +27,8 @@ export function HomeExperience() {
   const [index, setIndex] = useState(1);
   const [playing, setPlaying] = useState(false);
   const [chooserOpen, setChooserOpen] = useState(false);
+  const [selectionVersion, setSelectionVersion] = useState(0);
+  const progress = useRef<HTMLDivElement>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const format = mainFormats[index];
   useEffect(() => {
@@ -51,10 +54,33 @@ export function HomeExperience() {
   }, []);
   useEffect(() => {
     if (!playing || chooserOpen) return;
-    return startShowcaseAutoplay(() => {
-      setIndex((current) => (current + 1) % mainFormats.length);
-    });
-  }, [index, playing, chooserOpen]);
+    let animation: Animation | undefined;
+    return startShowcaseAutoplay(
+      () => setIndex((current) => (current + 1) % mainFormats.length),
+      (duration) => {
+        animation?.cancel();
+        animation = undefined;
+        const fill = progress.current?.querySelector<HTMLElement>(
+          '[aria-pressed="true"] .showcase-segment-fill',
+        );
+        if (
+          duration === null ||
+          !fill?.animate ||
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        )
+          return;
+        try {
+          animation = fill.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], {
+            duration,
+            easing: "linear",
+            fill: "forwards",
+          });
+        } catch {
+          // A decorative progress effect must never block the photo timer.
+        }
+      },
+    );
+  }, [index, playing, chooserOpen, selectionVersion]);
   function remember(next: number) {
     try {
       sessionStorage.setItem("pressdirect-format", String(next));
@@ -65,6 +91,8 @@ export function HomeExperience() {
   function choose(next: number) {
     const selected = (next + mainFormats.length) % mainFormats.length;
     setIndex(selected);
+    // Choosing the current segment also starts a fresh reading interval.
+    setSelectionVersion((current) => current + 1);
     setChooserOpen(false);
     remember(selected);
   }
@@ -112,30 +140,54 @@ export function HomeExperience() {
               Узнать о формате <ArrowUpRight size={21} />
             </a>
           </div>
-          <div
-            className="showcase-photo"
-            data-reveal
-            data-parallax="16"
-            onTouchStart={(event) => {
-              touchStart.current = {
-                x: event.touches[0].clientX,
-                y: event.touches[0].clientY,
-              };
-            }}
-            onTouchEnd={(event) => {
-              if (touchStart.current) {
-                const dx = touchStart.current.x - event.changedTouches[0].clientX;
-                const dy = touchStart.current.y - event.changedTouches[0].clientY;
-                if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy))
-                  choose(index + (dx > 0 ? 1 : -1));
-              }
-              touchStart.current = null;
-            }}
-            onTouchCancel={() => {
-              touchStart.current = null;
-            }}
-          >
-            <ShowcaseLiquid index={index} />
+          <div className="showcase-visual">
+            <div
+              className="showcase-photo"
+              data-reveal
+              data-parallax="16"
+              onTouchStart={(event) => {
+                touchStart.current = {
+                  x: event.touches[0].clientX,
+                  y: event.touches[0].clientY,
+                };
+              }}
+              onTouchEnd={(event) => {
+                if (touchStart.current) {
+                  const dx = touchStart.current.x - event.changedTouches[0].clientX;
+                  const dy = touchStart.current.y - event.changedTouches[0].clientY;
+                  if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy))
+                    choose(index + (dx > 0 ? 1 : -1));
+                }
+                touchStart.current = null;
+              }}
+              onTouchCancel={() => {
+                touchStart.current = null;
+              }}
+            >
+              <ShowcaseLiquid index={index} />
+            </div>
+            <div
+              className="showcase-progress"
+              ref={progress}
+              role="group"
+              aria-label="Выбрать фото формата"
+            >
+              {mainFormats.map((item, i) => (
+                <button
+                  key={item.slug}
+                  className="showcase-segment"
+                  type="button"
+                  aria-label={`Показать формат ${i + 1} из ${mainFormats.length}: ${item.short}`}
+                  aria-pressed={i === index}
+                  title={item.short}
+                  onClick={() => choose(i)}
+                >
+                  <span className="showcase-segment-track" aria-hidden="true">
+                    <span className="showcase-segment-fill" />
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <div className="showcase-switch" data-reveal="row">
@@ -206,19 +258,7 @@ export function HomeExperience() {
           <h2 id="all-formats">Форматы интеграций</h2>
           <span className="eyebrow">06 направлений</span>
         </div>
-        {mainFormats.map((item, i) => (
-          <a
-            key={item.slug}
-            href={formatHref(item.slug)}
-            className="index-row"
-            data-reveal="row"
-            onClick={() => remember(i)}
-          >
-            <span className="row-number">{item.number}</span>
-            <h3>{item.title}</h3>
-            <ArrowUpRight size={26} />
-          </a>
-        ))}
+        <FormatPreviewList items={mainFormats} />
       </section>
       <section className="contact-band section-wrap" data-reveal>
         <span className="eyebrow">Начнём с вашей идеи</span>

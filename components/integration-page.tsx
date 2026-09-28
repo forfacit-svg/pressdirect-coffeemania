@@ -2,16 +2,10 @@ import { ArrowUpRight, ArrowLeft } from "lucide-react";
 import { ContactOptions } from "@/components/contact-options";
 import { LocationSection } from "@/components/locations";
 import { IntegrationStory } from "@/components/integration-story";
+import { FormatPreviewList } from "@/components/format-preview-list";
 import { showcaseFor } from "@/content/showcase";
 import media from "@/content/media.json";
-import {
-  type Integration,
-  mainFormats,
-  contactHref,
-  digitalHref,
-  formatHref,
-  digital,
-} from "@/content/integrations";
+import { type Integration, mainFormats, contactHref, digital } from "@/content/integrations";
 export function IntegrationPage({
   item,
   isDigital = false,
@@ -140,21 +134,14 @@ export function IntegrationPage({
             Все форматы <ArrowUpRight size={18} />
           </a>
         </div>
-        <div>
-          {(isDigital ? digital : mainFormats)
+        <FormatPreviewList
+          digital={isDigital}
+          compact
+          items={(isDigital ? digital : mainFormats)
             .filter((x) => x.slug !== item.slug)
             .slice(0, 3)
-            .map((x) => (
-              <a
-                key={x.slug}
-                data-reveal="row"
-                href={isDigital ? digitalHref(x.slug) : formatHref(x.slug)}
-              >
-                {x.title}
-                <ArrowUpRight size={21} />
-              </a>
-            ))}
-        </div>
+            .map(({ slug, title, image }) => ({ slug, title, image }))}
+        />
       </section>
     </main>
   );

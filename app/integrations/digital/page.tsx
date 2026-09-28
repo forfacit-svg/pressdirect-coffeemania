@@ -1,8 +1,9 @@
-import { ArrowUpRight, ArrowLeft } from "lucide-react";
-import { digital, digitalHref } from "@/content/integrations";
+import { ArrowLeft } from "lucide-react";
+import { digital } from "@/content/integrations";
 import { showcaseImages } from "@/content/showcase";
 import { ContactOptions } from "@/components/contact-options";
 import { LocationSection } from "@/components/locations";
+import { FormatPreviewList } from "@/components/format-preview-list";
 export const metadata = {
   title: "Цифровые интеграции",
   description:
@@ -51,17 +52,15 @@ export default function Digital() {
         <p className="section-note" data-reveal>
           Выберите формат и свяжитесь с нами, чтобы обсудить условия размещения.
         </p>
-        {digital.map((x, i) => (
-          <a key={x.slug} href={digitalHref(x.slug)} className="digital-row" data-reveal="row">
-            <span className="row-number">{String(i + 1).padStart(2, "0")}</span>
-            <div>
-              <h3>{x.title}</h3>
-              <p>{x.facts[0][0]} — охват в месяц</p>
-            </div>
-            <span className="digital-open">Подробнее</span>
-            <ArrowUpRight size={24} />
-          </a>
-        ))}
+        <FormatPreviewList
+          digital
+          items={digital.map(({ slug, title, image, facts }) => ({
+            slug,
+            title,
+            image,
+            note: `${facts[0][0]} — охват в месяц`,
+          }))}
+        />
       </section>
       <section className="digital-inquiry section-wrap">
         <h2 data-reveal>Подберём подходящий формат</h2>
